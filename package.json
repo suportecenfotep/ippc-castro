@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.js"
+    "start": "node index.js"
   },
   "author": "José Domingos António",
   "license": "ISC",
@@ -21,13 +21,13 @@
     "multer": "^1.4.5-lts.1",
     "mysql2": "^3.10.2",
     "node-cron": "^3.0.3",
-    "nodemon": "^3.1.0",
     "pdf-creator-node": "^2.3.5",
     "sequelize": "^6.37.1",
     "socket.io": "^4.7.4",
     "sqlite3": "^5.1.7",
     "sweetalert2": "^11.10.5",
     "xml-crypto": "^6.0.0",
-    "xmlbuilder": "^15.1.1"
+    "xmlbuilder": "^15.1.1",
+    "xml2js": "^0.6.2"
   }
 }

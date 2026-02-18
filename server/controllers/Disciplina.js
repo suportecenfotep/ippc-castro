@@ -1,11 +1,12 @@
 const { Disciplina } = require("../models/Model");
 
 const create = (req, res) => {
+    
     const form = req.body;
 
     Disciplina.create(form)
         .then(data => {
-            res.status(201).json({ message: "Disciplina criada com sucesso", data });
+            res.status(201).json({message:"Disciplina criada com sucesso", data:data});
         })
         .catch(err => {
             res.status(500).json(err);
@@ -30,7 +31,7 @@ const update = (req, res) => {
 
     Disciplina.update(form, { where: { id } })
         .then(() => {
-            res.status(200).json({ message: "Disciplina atualizada com sucesso" });
+            res.status(201).json({message:"Disciplina atualizada com sucesso"});
         })
         .catch(err => {
             res.status(500).json(err);
@@ -42,7 +43,7 @@ const remove = (req, res) => {
 
     Disciplina.destroy({ where: { id } })
         .then(() => {
-            res.status(200).json({ message: "Disciplina excluída com sucesso" });
+            res.status(201).json({message:"Disciplina excluída com sucesso"});
         })
         .catch(err => {
             res.status(500).json(err);
@@ -59,10 +60,11 @@ const listAll = (req, res) => {
         });
 };
 
-const listByCurso = (req, res) => {
-    const { curso_id } = req.params;
+const listByStatus = (req, res) => {
+    const { status } = req.params;
 
-    Disciplina.findAll({ where: { curso_id } })
+    Disciplina
+        .findAll({ where: { status } })
         .then(data => {
             res.status(200).json(data);
         })
@@ -77,5 +79,5 @@ module.exports = {
     update,
     remove,
     listAll,
-    listByCurso
+    listByStatus
 };

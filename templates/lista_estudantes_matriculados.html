@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista Distribuição Exame Acesso</title>
+    <!-- Importação da fonte Roboto -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Aplicar a fonte Roboto no documento */
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-size: 12px; /* Reduz o tamanho geral do texto */
+            line-height: 1.5;
+        }
+        img {
+            width: 70px;
+        }
+        .text-center {
+            text-align: center;
+        }
+        h4 {
+            text-transform: uppercase;
+            margin: 0;
+            font-size: 13px;
+            text-decoration: underline;
+        }
+        h5 {
+            margin: 0;
+            font-weight: normal;
+            font-size: 12px; /* Reduzido para acompanhar a redução geral */
+        }
+        p {
+            margin: 0; /* Remove a margem dos parágrafos */
+            font-size: 12px; /* Reduzido para acompanhar a redução geral */
+        }
+        .header-info {
+            width: 100%;
+            clear: both;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        .left-column, .right-column, .center-column {
+            width: 32%; /* Define a largura das colunas */
+            float: left;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        .right-column {
+            margin-left: 4%; /* Um pequeno espaço entre as colunas */
+            text-align: right;
+        }
+        .center-column {
+            text-align: right;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid black;
+            margin-top: 20px;
+            clear: both;
+            page-break-inside: auto; /* Permite que o conteúdo da tabela seja quebrado entre páginas */
+        }
+        .rows tr > th {
+            text-align: left;
+            font-size: 12px; /* Reduzido */
+        }
+        .rows tr > th, td {
+            border: 1px solid black;
+            padding: 2px;
+            padding-left: 2px;
+            font-size: 12px; /* Reduzido */
+        }
+        /* Garante que as linhas de tabela não se quebrem entre páginas */
+        .rows tr {
+            page-break-inside: avoid; 
+        }
+        .signature {
+            width: 60%;
+            margin-left: 20%;
+            text-align: center;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header text-center">
+        <img class="w-25" src="{{header.logo}}">
+        <h4>Instituto Politécnico Privado Castro</h4>
+        <h4>"A Luz do Saber"</h4>
+        <h4 style="text-decoration: none;">RELAÇÃO NOMINAL Dos Alunos DA TURMA <b style="color: red;">{{header.nome_sala}}</b>/<b>{{header.nome_ano}}</b></h4>
+    </div>
+
+    <div class="header-info">
+        <div class="left-column">
+            <p><b>{{header.nome_curso}}</b></p>
+        </div>
+        <div class="center-column">
+            <p><b>Sala Nº</b> {{header.numero_sala}}</p>
+        </div>
+        <div class="right-column">
+            <p><b>Período:</b> {{header.nome_periodo}}</p>
+        </div>
+    </div>
+
+    <div class="body">
+        <table class="rows">
+            <thead>
+                <tr>
+                    <th style="width: 40px;">NºOrd</th>
+                    <th style="width: 40px;">NºProc.</th>
+                    <th style="text-align: center;">Nome Completo</th>
+                    <th>Identificação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each candidatos}}
+                    <tr>
+                        <td>{{id}}</td>
+                        <td>{{numero_processual}}</td>
+                        <td>{{nome}}</td>
+                        <td>{{identificacao}}</td>
+                    </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="signature">
+        <p style="font-weight: bold; margin-bottom: 10px;">Huambo, aos {{header.formattedToday}}</p>
+        <p>O Subdiretor Pedagógico</p>
+        <p style="margin: 0;">_________________________________________</p>
+        <p style="margin-top: 1px; font-weight: bold;">Aurélio João Sales Duarte Bandeira</p>
+    </div>
+</body>
+</html>

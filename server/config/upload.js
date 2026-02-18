@@ -2,7 +2,7 @@ const multer = require('multer');
 // Configuração do Multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, '../mediafiles/');
+    cb(null, 'mediafiles/');
   },
   filename: (req, file, cb) => {
     const fileName = `${Date.now()}_${file.originalname}`;
@@ -30,4 +30,5 @@ const uploadFile = (req, res, next) => {
   });
 };
 
+// Exportando a função de upload para uso em outras partes do aplicativo
 module.exports = uploadFile;

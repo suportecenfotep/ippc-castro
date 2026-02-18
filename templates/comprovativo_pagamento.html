@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .row{
+            width:100%;
+        }
+        .col-50{
+            width:50%;
+            position:relative;
+            padding:5px;
+            font-size: 11px;
+        }
+        .title{
+            width:50%;
+            margin-bottom: 0px;
+        }
+        .title p {
+            margin:0px;
+        }
+        .student{
+            width:50%;
+            margin-bottom: 0px;
+            padding-top: 5.5em;
+        }
+        .student p {
+            margin:0px;
+        }
+        .logo{
+            width:15%;
+        }
+        .table{
+            border-collapse: collapse;
+            border:1px solid black;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .table > thead > tr > th {
+            padding:5px;
+            border-collapse: collapse;
+            border: 1px solid black;
+        }
+
+        .table > tbody > tr > td {
+            padding:5px;
+            border-collapse: collapse;
+            border: 1px solid black;
+            font-size: 10px;
+        }
+        .qrcode{
+            position: absolute;
+            right: 10px;
+            top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <table class="row">
+        <tr  class="row">
+            <td class="col-50">
+                <img 
+                    src = "http://localhost:9000/api/mediafiles/castro.jpeg"
+                    class="logo"
+                />
+                <div class="qrcode" id="qrcode1"></div>
+                <table>
+                    <tr>
+                        <td class="title">
+                            <h4 style="text-transform:uppercase">Instituto Politécnico Privado Castro <br> "A Luz do Saber"</h4>
+                            <p>NIF: <b>0301030100</b></p>
+                            <p>Contactos: <b>934823332 / 924133070</b></p>
+                            <p>Email: <b>ippc@gmail.com</b></p>
+                            <p>Endereço: <b>Huambo, Bomba Baixa</b></p>
+                            <p>Site: <b>www.ippcastro.com</b></p>
+                        </td>
+                        <td class="student">
+                            <p>Estudante: <b>{{estudante.nome}}</b></p>
+                            <p>Curso: <b>{{estudante.curso}}</b></p>
+                            <p>Ano Lectivo: <b>{{header.ano}}</b></p>
+                            <p>Classe: <b>{{estudante.classe}}</b></p>
+                            <p>Turma: <b>{{estudante.turma}}</b></p>
+                        </td>
+                    </tr>
+                </table>
+                <h3>Comprovativo de Pagamento</h3>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Nº</th>
+                            <th>EMOLUMENTO</th>
+                            <th>PREÇO</th>
+                            <th>DESCONTO</th>
+                            <th>MULTA</th>
+                            <th>SUBTOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each itens}}
+                            <tr>
+                                <td>{{id}}</td>
+                                <td>{{emolumento}}</td>
+                                <td>{{preco}}</td>
+                                <td>{{desconto}}</td>
+                                <td>{{multa}}</td>
+                                <td>{{subtotal}}</td>
+                            </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+
+                <table class="row" style="margin-bottom: 15px">
+                    <tr class="row">
+                        <td style="width: 40%; height: 10em; padding-top: 0;">
+                            <p style="text-transform: uppercase; font-size: 10px;">SUBTOTAL: <b>{{footer.subtotal}}</b></p>
+                            <p style="text-transform: uppercase; font-size: 10px;">DESCONTOS: <b>{{footer.descontos}}</b></p>
+                            <p style="text-transform: uppercase; font-size: 10px;">MULTA: <b>{{footer.multas}}</b></p>
+                            <p style="text-transform: uppercase; font-size: 10px;">TOTAL: <b>{{footer.total}}</b></p>
+                        </td>
+                    </tr>
+                </table>
+                <div style="text-align: center;">
+                    <p style="margin: 0; font-size: 10px;">O Funcionário</p>
+                    <p>_______________________________</p>
+                    <b>{{footer.funcionario}}</b>
+                     <p style="margin: 0; margin-top: 20px; font-size: 10px;"><b>Huambo, aos {{header.data}}</b></p>
+                </div>
+            </td>
+            <td class="col-50">
+                <img 
+                    src = "http://localhost:9000/api/mediafiles/castro.jpeg"
+                    class="logo"
+                />
+                <div class="qrcode" id="qrcode2"></div>
+                <table>
+                    <tr>
+                        <td class="title">
+                            <h4 style="text-transform:uppercase">Instituto Politécnico Privado Castro <br> "A Luz do Saber"</h4>
+                            <p>NIF: <b>0301030100</b></p>
+                            <p>Contactos: <b>934823332 / 924133070</b></p>
+                            <p>Email: <b>ippc@gmail.com</b></p>
+                            <p>Endereço: <b>Huambo, Bomba Baixa</b></p>
+                            <p>Site: <b>www.ippcastro.com</b></p>
+                        </td>
+                        <td class="student">
+                            <p>Estudante: <b>{{estudante.nome}}</b></p>
+                            <p>Curso: <b>{{estudante.curso}}</b></p>
+                            <p>Ano Lectivo: <b>{{header.ano}}</b></p>
+                            <p>Classe: <b>{{estudante.classe}}</b></p>
+                            <p>Turma: <b>{{estudante.turma}}</b></p>
+                        </td>
+                    </tr>
+                </table>
+
+                <h3>Comprovativo de Pagamento</h3>
+
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Nº</th>
+                            <th>EMOLUMENTO</th>
+                            <th>PREÇO</th>
+                            <th>DESCONTO</th>
+                            <th>MULTA</th>
+                            <th>SUBTOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each itens}}
+                            <tr>
+                                <td>{{id}}</td>
+                                <td>{{emolumento}}</td>
+                                <td>{{preco}}</td>
+                                <td>{{desconto}}</td>
+                                <td>{{multa}}</td>
+                                <td>{{subtotal}}</td>
+                            </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+
+                <table class="row" style="margin-bottom: 15px">
+                    <tr class="row">
+                        <td style="width: 40%; height: 10em; padding-top: 0;">
+                            <p style="text-transform: uppercase; font-size: 10px; margin-bottom: 0;">SUBTOTAL: <b>{{footer.subtotal}}</b></p>
+                            <p style="text-transform: uppercase; font-size: 10px; margin-bottom: 0;">DESCONTOS: <b>{{footer.descontos}}</b></p>
+                            <p style="text-transform: uppercase; font-size: 10px; margin-bottom: 0;">MULTA: <b>{{footer.multas}}</b></p>
+                            <p style="text-transform: uppercase; font-size: 10px; margin-bottom: 0;">TOTAL : <b>{{footer.total}}</b></p>
+                        </td>
+                    </tr>
+                </table>
+
+                <div style="text-align: center;">
+                    <p style="margin: 0; font-size: 10px;">O Funcionário</p>
+                    <p>_______________________________</p>
+                    <b>{{footer.funcionario}}</b>
+                    <p style="margin: 0; margin-top: 20px; font-size: 10px;"><b>Huambo, aos {{header.data}}</b></p>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <script src = "http://localhost:9000/static/jquery/jquery.min.js"></script>
+    <script src = "http://localhost:9000/static/qrcode/qrcode.js"></script>
+    <script>
+        var qrcode = new QRCode(document.getElementById('qrcode1'), {
+            text:'{{header.id}}',
+            width:50,
+            height:50
+        })
+
+        var qrcode2 = new QRCode(document.getElementById('qrcode2'), {
+            text:'{{header.id}}',
+            width:50,
+            height:50
+        })
+    </script>
+</body>
+</html>

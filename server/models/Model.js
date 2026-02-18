@@ -30,7 +30,7 @@ const User = conn.define("User", {
         }
     },
     nivel:{
-        type:DataTypes.ENUM("IT","Administrador","Secretaria","Tesouraria","Professor","D.Pedagógico","D.Geral","PCA"),
+        type:DataTypes.ENUM("IT","Administrador","Secretaria","Tesouraria"),
         allowNull:false
     },
     senha:{
@@ -186,11 +186,6 @@ const Sala = conn.define("Sala", {
         type:DataTypes.STRING,
         allowNull:false
     },
-    numero_sala:{
-        type:DataTypes.INTEGER,
-        allowNull:false,
-        defaultValue:0
-    },
     status:{
         type:DataTypes.BOOLEAN,
         allowNull:false
@@ -208,79 +203,33 @@ const Estudante = conn.define("Estudante", {
         autoIncrement:true,
         unique:true
     },
-    numero_processual:{
-        type:DataTypes.STRING,
-        allowNull:false,
-        validate:{
-            notEmpty:true
-        },
-        defaultValue:0
-    },
     numero:{
         type:DataTypes.INTEGER,
         allowNull:false
     },
     identificacao:{
         type:DataTypes.STRING,
-        allowNull:true
-    },
-    local_emissao_identificacao:{
-        type:DataTypes.STRING,
-        allowNull:true
-    },
-    data_emissao_bi:{
-        type:DataTypes.STRING,
-        allowNull:true
+        allowNull:false
     },
     nome:{
         type:DataTypes.STRING,
-        allowNull:false,
-        validate:{
-            notEmpty:true
-        }
+        allowNull:false
     },
     telefone:{
         type:DataTypes.INTEGER,
-        allowNull:true
+        allowNull:false
     },
     data_de_nascimento:{
         type:DataTypes.DATE,
-        allowNull:false,
-        validate:{
-            notEmpty:true
-        }
-    },
-    nacionalidade:{
-        type:DataTypes.STRING,
-        allowNull:true
-    },
-    naturalidade:{
-        type:DataTypes.STRING,
-        allowNull:true
-    },
-    municipio:{
-        type:DataTypes.STRING,
-        allowNull:true
-    },
-    provincia:{
-        type:DataTypes.STRING,
         allowNull:false
     },
     genero:{
-        type:DataTypes.STRING,
-        allowNull:true,
+        type:DataTypes.ENUM("Masculino","Femenino"),
+        allowNull:false,
     },
     estado_civil:{
-        type:DataTypes.STRING,
-        allowNull:true
-    },
-    nome_pai:{
-        type:DataTypes.STRING,
-        allowNull:true
-    },
-    nome_mae:{
-        type:DataTypes.STRING,
-        allowNull:true
+        type:DataTypes.ENUM("Solteiro","Solteira","Casado","Casada","Divorciado","Divorciada","Viuvo","Viuva"),
+        allowNull:false
     },
     escola_anterior:{
         type:DataTypes.STRING,
@@ -301,26 +250,21 @@ const Estudante = conn.define("Estudante", {
         type:DataTypes.INTEGER,
         allowNull:false
     },
-    lingua_opcao:{
-        type:DataTypes.STRING,
-        allowNull:true
-    },
     encarregado:{
         type:DataTypes.STRING,
-        allowNull:true
-    },
-    grau_parentesco:{
-        type:DataTypes.STRING,
-        allowNull:true
+        allowNull:false
     },
     contacto_encarregado:{
         type:DataTypes.INTEGER,
-        allowNull:true
+        allowNull:false
+    },
+    status:{
+        type:DataTypes.BOOLEAN,
+        allowNull:false
     },
     user_id:{
         type:DataTypes.INTEGER,
-        allowNull:true,
-        defaultValue:1
+        allowNull:false
     },
 },{
     tableName:"estudantes",
@@ -422,14 +366,9 @@ const Pagamento = conn.define("Pagamento", {
         autoIncrement:true,
         unique:true
     },
-    doc_type:{
+    descricao:{
         type:DataTypes.STRING,
-        allowNull:false,
-        defaultValue:"FR"
-    },
-    numero:{
-        type:DataTypes.STRING,
-        allowNull:false
+        alloNull:false,
     },
     ano_id:{
         type:DataTypes.INTEGER,
@@ -442,15 +381,6 @@ const Pagamento = conn.define("Pagamento", {
     user_id:{
         type:DataTypes.INTEGER,
         allowNull:false
-    },
-    hash:{
-        type:DataTypes.TEXT,
-        allowNull:false
-    },
-    estado:{
-        type:DataTypes.ENUM("Pago","Anulado"),
-        allowNull:false,
-        defaultValue:"Pago"
     }
 },{
     tableName:"pagamentos",
@@ -490,7 +420,7 @@ const ItensPagamento = conn.define("ItensPagamento", {
         allowNull:false
     }
 },{
-    tableName:"pagamentos_itens",
+    tableName:"itens_pagamentos",
     timestamps:false
 })
 
@@ -572,7 +502,7 @@ const Matricula = conn.define("Matricula", {
     timestamps:true
 })
 
-const Notification = conn.define("Notification", {
+const Funcionario = conn.define("Funcionario", {
     id:{
         type:DataTypes.INTEGER,
         allowNull:false,
@@ -580,21 +510,297 @@ const Notification = conn.define("Notification", {
         autoIncrement:true,
         unique:true
     },
-    title:{
+    identificacao:{
+        type:DataTypes.STRING,
+        allowNull:false,
+        unique:true
+    },
+    nome:{
         type:DataTypes.STRING,
         allowNull:false
     },
-    text:{
-        type:DataTypes.TEXT,
+    nome_pai:{
+        type:DataTypes.STRING,
+        allowNull:false
+    },
+    nome_mae:{
+        type:DataTypes.STRING,
+        allowNull:false
+    },
+    data_de_nascimento:{
+        type:DataTypes.DATEONLY,
+        allowNull:false
+    },
+    nacionalidade:{
+        type:DataTypes.STRING,
+        allowNull:false
+    },
+    provincia:{
+        type:DataTypes.STRING,
+        allowNull:false
+    },
+    municipio:{
+        type:DataTypes.STRING,
+        allowNull:false
+    },
+    telefone:{
+        type:DataTypes.STRING,
+        allowNull:false
+    },
+    email:{
+        type:DataTypes.STRING,
+        validate:{
+            isEmail:true
+        }
+    },
+    genero:{
+        type:DataTypes.STRING,
+        allowNull:false
+    },
+    estado_civil:{
+        type:DataTypes.STRING,
+        allowNull:false
+    },
+    residencia:{
+        type:DataTypes.STRING,
+        allowNull:false
+    },
+    escola_formacao:{
+        type:DataTypes.STRING,
+        allowNull:false
+    },
+    nivel_academico:{
+        type:DataTypes.STRING,
+        allowNull:false
+    },
+    area_formacao:{
+        type:DataTypes.STRING,
+        allowNull:false
+    },
+    grupo:{
+        type:DataTypes.ENUM("Docente","Administrativo"),
+        allowNull:false
+    },
+    status:{
+        type:DataTypes.BOOLEAN,
+        allowNull:false
+    },
+    user_id:{
+        type:DataTypes.INTEGER,
         allowNull:false
     }
 },{
-    tableName:"notificacoes",
+    tableName:"funcionarios",
+    timestamps:false
+})
+
+const ContratoDocente = conn.define("ContratoDocente",{
+    id:{
+        type:DataTypes.INTEGER,
+        allowNull:false,
+        primaryKey:true,
+        autoIncrement:true,
+        unique:true
+    },
+    funcionario_id:{
+        type:DataTypes.INTEGER,
+        allowNull:false
+    },
+    valor_tempo:{
+        type:DataTypes.DOUBLE,
+        allowNull:false
+    },
+    total_tempos:{
+        type:DataTypes.INTEGER,
+        allowNull:false
+    },
+    ano_id:{
+        type:DataTypes.INTEGER,
+        allowNull:false
+    },
+    user_id:{
+        type:DataTypes.INTEGER,
+        allowNull:false
+    },
+    status:{
+        type:DataTypes.BOOLEAN,
+        allowNull:false
+    }
+},{
+    tableName:"contrato_docentes",
     timestamps:true
 })
 
+const ContratoAdministrativo = conn.define("ContratoAdministrativo",{
+    id:{
+        type:DataTypes.INTEGER,
+        allowNull:false,
+        primaryKey:true,
+        autoIncrement:true,
+        unique:true
+    },
+    funcionario_id:{
+        type:DataTypes.INTEGER,
+        allowNull:false
+    },
+    funcao:{
+        type:DataTypes.STRING,
+        allowNull:false
+    },
+    salario_base:{
+        type:DataTypes.DOUBLE,
+        allowNull:false
+    },
+    ano_id:{
+        type:DataTypes.INTEGER,
+        allowNull:false
+    },
+    user_id:{
+        type:DataTypes.INTEGER,
+        allowNull:false
+    },
+    status:{
+        type:DataTypes.BOOLEAN,
+        allowNull:false
+    }
+},{
+    tableName:"contrato_administrativos",
+    timestamps:true
+})
+
+const Feria = conn.define("Feria",{
+    id:{
+        type:DataTypes.INTEGER,
+        allowNull:false,
+        primaryKey:true,
+        autoIncrement:true,
+        unique:true
+    },
+    ano_id:{
+        type:DataTypes.INTEGER,
+        allowNull:false
+    },
+    mes:{
+        type:DataTypes.STRING,
+        allowNull:false
+    },
+    funcionario_id:{
+        type:DataTypes.INTEGER,
+        allowNull:false
+    },
+    duracao:{
+        type:DataTypes.INTEGER,
+        allowNull:false
+    },
+    inicio:{
+        type:DataTypes.DATEONLY,
+        allowNull:false
+    },
+    termino:{
+        type:DataTypes.DATEONLY,
+        allowNull:false
+    },
+    user_id:{
+        type:DataTypes.INTEGER,
+        allowNull:false
+    },
+    status:{
+        type:DataTypes.BOOLEAN,
+        allowNull:false
+    }
+},{
+    tableName:"ferias",
+    timestamps:true
+})
+
+const FolhaSalarialDocentes = conn.define("FolhaSalarialDocentes",{
+    id:{
+        type:DataTypes.INTEGER,
+        allowNull:false,
+        primaryKey:true,
+        autoIncrement:true,
+        unique:true
+    },
+    qrcode:{
+        type:DataTypes.INTEGER,
+        allowNull:false
+    },
+    ano_id:{
+        type:DataTypes.INTEGER,
+        allowNull:false
+    },
+    mes:{
+        type:DataTypes.STRING,
+        allowNull:false
+    },
+    estado:{
+        type:DataTypes.ENUM("Agendada","Processada","Cancelada"),
+        allowNull:false
+    },
+    user_id:{
+        type:DataTypes.INTEGER,
+        allowNull:false
+    },
+    status:{
+        type:DataTypes.BOOLEAN,
+        allowNull:false,
+        defaultValue:true
+    }
+},{
+    tableName:"folha_salarial_docentes",
+    timestamps:true
+})
+
+const ItensFolhaSalarialDocentes = conn.define("ItensFolhaSalarialDocentes",{
+    id:{
+        type:DataTypes.INTEGER,
+        allowNull:false,
+        primaryKey:true,
+        autoIncrement:true,
+        unique:true
+    },
+    folha_salarial_id:{
+        type:DataTypes.INTEGER,
+        allowNull:false
+    },
+    contrato_id:{
+        type:DataTypes.INTEGER,
+        allowNull:false
+    },
+    total_tempos:{
+        type:DataTypes.INTEGER,
+        allowNull:false
+    },
+    ss:{
+        type:DataTypes.DOUBLE,
+        allowNull:false
+    },
+    irt:{
+        type:DataTypes.INTEGER,
+        allowNull:false
+    },
+    horas_extras:{
+        type:DataTypes.INTEGER,
+        allowNull:false
+    },
+    subsidios:{
+        type:DataTypes.INTEGER,
+        allowNull:false
+    },
+    salario_liquido:{
+        type:DataTypes.INTEGER,
+        allowNull:false
+    },
+    detalhes:{
+        type:DataTypes.TEXT,
+        allowNull:false
+    },
+},{
+    tableName:"folha_salarial_docentes_itens",
+    timestamps:false
+})
+
 Estudante.belongsTo(Curso,{foreignKey:"curso_id"});
-Estudante.hasMany(Matricula,{foreignKey:"estudante_id"});
 Estudante.belongsTo(User,{foreignKey:"user_id"});
 Estudante.hasMany(Pagamento, {foreignKey:"estudante_id"});
 Emolumento.belongsTo(EmolumentoNatureza, {foreignKey:"natureza_id"});
@@ -622,10 +828,23 @@ Matricula.belongsTo(Estudante, {foreignKey:"estudante_id"});
 Matricula.belongsTo(Curso, {foreignKey:"curso_id"});
 Matricula.belongsTo(Periodo, {foreignKey:"periodo_id"});
 Matricula.belongsTo(User, {foreignKey:"user_id"});
-Sala.hasMany(Matricula,{foreignKey:"sala_id"});
 Sala.belongsTo(Curso,{foreignKey:"curso_id"});
 Sala.belongsTo(Classe,{foreignKey:"classe_id"});
 Sala.belongsTo(Periodo,{foreignKey:"periodo_id"});
+Funcionario.belongsTo(User, {foreignKey:"user_id"})
+ContratoDocente.belongsTo(AnoLectivo,{foreignKey:"ano_id"})
+ContratoDocente.belongsTo(Funcionario,{foreignKey:"funcionario_id"})
+ContratoDocente.belongsTo(User,{foreignKey:"user_id"})
+ContratoAdministrativo.belongsTo(AnoLectivo,{foreignKey:"ano_id"})
+ContratoAdministrativo.belongsTo(Funcionario,{foreignKey:"funcionario_id"})
+ContratoAdministrativo.belongsTo(User,{foreignKey:"user_id"})
+Feria.belongsTo(AnoLectivo,{foreignKey:"ano_id"})
+Feria.belongsTo(Funcionario,{foreignKey:"funcionario_id"})
+Feria.belongsTo(User,{foreignKey:"user_id"})
+FolhaSalarialDocentes.belongsTo(AnoLectivo,{foreignKey:"ano_id"})
+FolhaSalarialDocentes.belongsTo(User,{foreignKey:"user_id"})
+ItensFolhaSalarialDocentes.belongsTo(FolhaSalarialDocentes, {foreignKey:"folha_salarial_id"})
+ItensFolhaSalarialDocentes.belongsTo(ContratoDocente, {foreignKey:"contrato_id"})
 
 module.exports = {
     User,
@@ -643,5 +862,10 @@ module.exports = {
     Despesa,
     Matricula,
     License,
-    Notification
+    Funcionario,
+    ContratoDocente,
+    ContratoAdministrativo,
+    Feria,
+    FolhaSalarialDocentes,
+    ItensFolhaSalarialDocentes
 }

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boletim de Matrícula</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1px;
+            flex-direction: column;
+        }
+
+        .page-content {
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 20px;
+            border: 1px solid black;
+            padding: 20px;
+            box-sizing: border-box;
+            page-break-after: always;
+            height: 100%;
+        }
+
+        .page-content:last-of-type {
+            page-break-after: auto;
+        }
+        
+        .logo {
+            width: 12%;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .header-details {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header-details > h3 {
+            font-weight: normal;
+            text-transform: uppercase;
+            font-size: 12px;
+            margin: 0;
+            margin-bottom: 2px;
+        }
+
+        .header-details > h4 {
+            text-transform: uppercase;
+            font-size: 12px;
+            margin: 0;
+            margin-bottom: 2px;
+            text-decoration: underline;
+        }
+
+        .boletim-text {
+            font-size: 15px;
+            text-transform: uppercase;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .header-processo {
+            font-size: 12px;
+            text-align: right;
+            margin-top: 10px;
+            font-weight: normal;
+        }
+
+        .processo-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .processo-detalhes > p {
+            text-align: justify;
+            font-size: 12px;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .docs-detail > h5 {
+            text-decoration: underline;
+            text-align: center;
+            margin-bottom: 0px;
+        }
+
+        .docs-detail > p {
+            font-size: 12px;
+        }
+
+        ol > li {
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+
+        .signature {
+            width: 45%;
+            font-size: 10px;
+            float: left;
+            text-align: center;
+        }
+
+        .signature-aluno {
+            width: 45%;
+            font-size: 10px;
+            float: right;
+            text-align: center;
+        }
+
+        .signature > hr, .signature-aluno > hr {
+            border: 0.5px solid black;
+            margin-top: 5px;
+        }
+
+        .clearfix {
+            margin-top: 10px;
+        }
+
+        .clearfix::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+
+        .compromisse-title {
+            text-decoration: underline;
+        }
+
+        ol[type="a"] {
+            list-style-type: none;
+            counter-reset: item;
+        }
+
+        ol[type="a"] > li {
+            counter-increment: item;
+            margin-bottom: 5px;
+        }
+
+        ol[type="a"] > li::before {
+            content: counter(item, lower-alpha) ") ";
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Conteúdo da primeira página -->
+    <div class="page-content">
+        <div class="header text-center">
+            <img class="logo" src="{{header.logo}}" alt="Logo">
+            <div class="header-details">
+                <h3 style="margin-top: 10px;">República de Angola</h3>
+                <h3>Governo da Província do Huambo</h3>
+                <h4>Instituto Politécnico Privado Castro</h4>
+                <h4>"A Luz do Saber"</h4>
+            </div>
+        </div>
+        <div class="processo-container">
+            <h1 class="header-processo">PROCESSO INDIVIDUAL Nº {{estudante.numero_processual}} /{{header.ano}}</h1>
+        </div>
+        <h4 class="boletim-text">Boletim de Matrícula Nº {{estudante.id}} / <b>{{header.nome_ano}}</b></h4>
+
+        <div class="processo-detalhes">
+            <p>Nome: <b>{{estudante.nome}}</b>, Nascido aos: <b>{{estudante.data_nascimento}}</b>, Idade: <b>{{estudante.idade}}</b> anos, Gênero: <b>{{estudante.genero}}</b>, Estado Civil: <b>{{estudante.estado_civil}}</b>, Natural de: <b>{{estudante.naturalidade}}</b>, Município: <b>{{estudante.municipio}}</b>, Província: <b>{{estudante.provincia }}</b>, Nacionalidade: <b>{{estudante.nacionalidade}}</b>, Filho (a) de: <b>{{estudante.nome_pai}}</b>, E de: <b>{{estudante.nome_mae}}</b>, Residente em: <b>{{estudante.residencia}}</b>, Telefone Nº: <b>{{estudante.telefone}}</b>, Portador do B.I Nº: <b>{{estudante.identificacao}}</b>, Passado pelo Arquivo de Identificação De: <b>{{estudante.local_emissao_identificacao}}</b>, Emitido aos: <b>{{estudante.data_emissao_bi}}.</b></p>
+            <p>Pretende Matricular-se na: <b>{{estudante.classe}}</b> do curso: <b>{{header.nome_curso}}</b>, Na área de: <b>Saúde</b>, tendo como língua de opção: <b>{{estudante.lingua_opcao}}</b></p>
+        </div>
+
+        <div class="docs-detail">
+            <h5>A PREENCHER PELA SECRETARIA</h5>
+            <p>No acto da matrícula o estudante entregou os seguintes documentos:</p>
+            <ol>
+                <li>_______________________________________</li>
+                <li>_______________________________________</li>
+                <li>_______________________________________</li>
+                <li>_______________________________________</li>
+            </ol>
+        </div>
+
+        <div class="docs-detail">
+            <h5>PARA ALUNOS REGULARES</h5>
+            <div class="processo-detalhes">
+                <p>Nome do Encarregado de Educação: <b>{{estudante.encarregado}}</b>, grau parentesco: <b>{{estudante.grau_parentesco}}</b>, Local de Trabalho <b>_________________________</b>, C.P.Nº:<b>____________________.</b></p>
+            </div>
+            <div class="clearfix">
+                <div class="signature">
+                    <b>O Encarregado de Educação</b>
+                    <p>_________________________</p>
+                    <p>Data:_____/_____/_________</p>
+                </div>
+                <div class="signature-aluno">
+                    <b>O Aluno</b>
+                    <p>_________________________</p>
+                    <p>Data:_____/_____/_________</p>
+                </div>
+            </div>
+        </div>
+
+        <p style="margin-bottom: 0;">................................................................................................................</p>
+        <h6 style="margin-top: 13px; margin-bottom: 0;">RECIBO DO BOLETIM DE MATRICULA Nº {{estudante.id}} / <b>{{header.nome_ano}}</b></h6>
+        <p style="margin-top: 5px; margin-bottom: 0; font-size: 12px;">Confirmo a entrega dos documentos necessários para a realização da matrícula do Aluno <b>{{estudante.nome}}</b>, na classe <b>{{estudante.classe}}</b>, no curso <b>{{header.nome_curso}}</b>.</p>
+        <div class="clearfix">
+            <div class="signature-aluno">
+                <b>O (a) Funcionário (a)</b>
+                <p style="margin-top: 2px;">______________________________</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conteúdo da segunda página -->
+    <div class="page-content" style="position: relative;">
+        <div class="header text-center">
+            <img class="logo" src="http://localhost:9000/api/mediafiles/castro.jpeg" alt="Logo">
+            <div class="header-details">
+                <h4 style="margin-top: 10px;">Instituto Politécnico Privado Castro</h4>
+                <h4>"A Luz do Saber"</h4>
+            </div>
+        </div>
+        <h1 class="boletim-text compromisse-title">Termo de Compromisso</h1>
+        <div class="processo-detalhes">
+            <p>Eu, <b>{{estudante.encarregado}}</b>, Encarregado (a) de Educação do aluno (a) <b>{{estudante.nome}}</b>,  da  <b>{{estudante.classe}}</b> do curso <b>{{header.nome_curso}}</b>, declaro que li o regulamento de funcionamento do <b>Instituto Politécnico Privado Castro "A Luz do Saber"</b> e que concordo com o seguinte:</p>
+            <ol>
+                <li>Garantir que o meu educando esteja no local de ocorrência das aulas e demais actividades académicas programadas pelo instituto 15 minutos antes do início das mesmas.</li>
+                <li>Responsabiliza-se pelo pagamento da mensalidade do meu educando até ao dia 10 de cada mês.</li>
+                <li>Comparticipar e participar em todas as actividades intra e extra-escolar.</li>
+                <li>Responsabiliza-se pelos danos causados pelo meu educando ao património da Instituição (Escola) e ou colegas sempre que comprovado.</li>
+                <li>Autorizo que o meu educando só abandone o recinto escolar no fim do horário estabelecido.</li>
+            </ol>
+            <p>Ainda sou a informar que a saída do meu educando do recinto será:</p>
+            <ol type="a">
+                <li>Livre____________;</li>
+                <li>Acompanhante___________.(Indique os nomes de possíveis acompanhantes)</li>
+            </ol>
+            <ol>
+                <li>Acompanhante________________________________________________________;</li>
+                <li>Acompanhante________________________________________________________;</li>
+                <li>Acompanhante________________________________________________________.</li>
+            </ol>
+        </div>
+        <p style="font-size: 12px; text-align: center;"><b>Contacto do Encarregado de Educação:{{estudante.contacto_encarregado}}</b></p>
+        <p style="text-align: center; font-size: 13px;">{{estudante.today}}</p>
+        <p style="text-align: center; font-size: 13px; font-weight: bold;">O (a) Encarregado de Educação</p>
+        <p style="text-align: center; font-size: 13px;">___________________________________</p>
+        <div style="background-color: rgb(255, 255, 81); font-size: 10px; padding:5px; font-weight: bold; position: absolute; bottom: 10px;">
+            Localização: Bomba Baixa, Estrada Nacional 260 Huambo - Bié, ao lado do Armazém (Bem Barato)
+        </div>
+    </div>
+</body>
+</html>

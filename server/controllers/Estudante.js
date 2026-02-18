@@ -1,37 +1,32 @@
-const { Estudante, Curso } = require("../models/Model");
+const { Estudante } = require("../models/Model");
 const {gerarNumero} = require("../config/utils")
 
- async function create(req, res){
+const create = (req, res) => {
     
-    try {
-        const form = {
-            numero:gerarNumero(),
-            ...req.body
-        };
-    
-        Estudante
-        .findOne({
-            where:{
-                identificacao:form.identificacao
-            }
-        })
-        .then(student => {
-            if(student){
-                res.status(500).json("Este estudante já existe na base de dados")
-            }else{
-                Estudante.create(form)
-                .then(data => {
-                    res.status(201).json({message:"Estudante inscrito com sucesso", data:data});
-                })
-                .catch(err => {
-                    res.status(500).json(err);
-                });
-            }
-        })
-    } catch {
-        console.log(err)
-    }
-   
+    const form = {
+        numero:gerarNumero(),
+        ...req.body
+    };
+
+    Estudante
+    .findOne({
+        where:{
+            identificacao:form.identificacao
+        }
+    })
+    .then(student => {
+        if(student){
+            res.status(500).json("Este estudante já existe na base de dados")
+        }else{
+            Estudante.create(form)
+            .then(data => {
+                res.status(201).json({message:"Estudante inscrito com sucesso", data:data});
+            })
+            .catch(err => {
+                res.status(500).json(err);
+            });
+        }
+    })
 };
 
 const read = (req, res) => {
@@ -72,7 +67,7 @@ const remove = (req, res) => {
 };
 
 const listAll = (req, res) => {
-    Estudante.findAll({include:[Curso]})
+    Estudante.findAll()
         .then(data => {
             res.status(200).json(data);
         })
@@ -84,7 +79,7 @@ const listAll = (req, res) => {
 const listByStatus = (req, res) => {
     const { status } = req.params;
 
-    Estudante.findAll({include:[Curso]})
+    Estudante.findAll({ where: { status } })
         .then(data => {
             res.status(200).json(data);
         })
@@ -96,7 +91,7 @@ const listByStatus = (req, res) => {
 const listByCourse = (req, res) => {
     const { curso_id } = req.params;
 
-    Estudante.findAll({ where: { curso_id }, include:[Curso] })
+    Estudante.findAll({ where: { curso_id } })
         .then(data => {
             res.status(200).json(data);
         })

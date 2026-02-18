@@ -1,5 +1,4 @@
-const { Sequelize } = require("sequelize");
-const { Sala, Matricula, Estudante } = require("../models/Model");
+const { Sala } = require("../models/Model");
 
 const create = (req, res) => {
     
@@ -85,51 +84,6 @@ const filterData = (req, res) => {
         });
 };
 
-const listByCursoClasse = (req, res) => {
-    const { curso_id, classe_id } = req.params;
-
-    Sala.findAll({ where: { curso_id, classe_id } })
-        .then(data => {
-            res.status(200).json(data);
-        })
-        .catch(err => {
-            res.status(500).json(err);
-        });
-};
-
-const listWithStudentCount = (req, res) => {
-    const { ano_id, curso_id, classe_id, periodo_id } = req.params;
-
-    Sala.findAll({
-        where: { curso_id, classe_id, periodo_id },
-        include: [{
-            model: Matricula,
-            required: false,
-            where: { ano_id },
-            include: [{
-                model: Estudante,
-                attributes: []
-            }],
-            attributes: []
-        }],
-        attributes: {
-            include: [
-                [Sequelize.fn("COUNT", Sequelize.col("Matriculas.id")), "num_estudantes"],
-                [Sequelize.fn("SUM", Sequelize.literal(`CASE WHEN \`Matriculas->Estudante\`.\`genero\` = 'Masculino' THEN 1 ELSE 0 END`)), "num_masculino"],
-                [Sequelize.fn("SUM", Sequelize.literal(`CASE WHEN \`Matriculas->Estudante\`.\`genero\` = 'Femenino' THEN 1 ELSE 0 END`)), "num_feminino"]
-            ]
-        },
-        group: ['Sala.id']
-    })
-    .then(data => {
-        res.status(200).json(data);
-    })
-    .catch(err => {
-        res.status(500).json(err);
-    });
-};
-
-
 module.exports = {
     create,
     read,
@@ -137,7 +91,5 @@ module.exports = {
     remove,
     listAll,
     listByStatus,
-    filterData,
-    listByCursoClasse,
-    listWithStudentCount
+    filterData
 };

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa de Controlo das Faltas</title>
+    <style>
+        @import url("/static/Roboto/Roboto-Black.ttf");
+        /* Aplicar a fonte Roboto no documento */
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-size: 7px; 
+            line-height: 1.5;
+        }
+        img {
+            width: 60px;
+        }
+        .text-center {
+            text-align: center;
+        }
+        h4 {
+            text-transform: uppercase;
+            margin: 0;
+            font-size: 10px;
+            text-decoration: underline;
+        }
+        h5 {
+            margin: 0;
+            font-weight: normal;
+            font-size: 10px; /* Reduzido para acompanhar a redução geral */
+        }
+        p {
+            margin: 0; /* Remove a margem dos parágrafos */
+            font-size: 12px; /* Reduzido para acompanhar a redução geral */
+        }
+        .header-info {
+            width: 100%;
+            clear: both;
+            margin-top: 5px;
+            margin-bottom: 10px;
+        }
+        .left-column, .right-column, .center-column {
+            width: 32%; /* Define a largura das colunas */
+            float: left;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        .right-column {
+            margin-left: 4%; /* Um pequeno espaço entre as colunas */
+            text-align: right;
+        }
+        .center-column {
+            text-align: right;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid black;
+            margin-top: 20px;
+            font-size: 10px;
+            clear: both;
+            page-break-inside: auto; 
+        }
+        .rows tr > th {
+            text-align: left;
+            font-size: 8px;
+        }
+        .rows tr > th, td {
+            border: 1px solid black;
+            padding: 1px;
+            padding-left: 2px;
+            font-size: 8px; 
+        }
+        /* Garante que as linhas de tabela não se quebrem entre páginas */
+        .rows tr {
+            page-break-inside: avoid; 
+        }
+        .signature {
+            width: 60%;
+            margin-left: 20%;
+            text-align: center;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header text-center">
+        <img class="w-25" src="{{header.logo}}">
+        <h4>Instituto Politécnico Privado Castro</h4>
+        <h4>"A Luz do Saber"</h4>
+        <h4 style="text-decoration: none;">MAPA DE CONTROLO DE FALTAS DA TURMA <b style="color: red;">{{header.nome_sala}}</b>/<b>{{header.nome_ano}}</b></h4>
+    </div>
+
+    <div class="header-info">
+        <div class="left-column">
+            <p>Curso: <b>{{header.nome_curso}}</b></p>
+        </div>
+        <div class="center-column">
+           <!-- <p><b>Sala Nº</b> {{header.numero_sala}}</p>-->
+        </div>
+        <div class="right-column">
+            <p><b>Período:</b> {{header.nome_periodo}}</p>
+        </div>
+    </div>
+
+    <div class="body">
+        <table class="rows">
+            <thead>
+                <tr>
+                    <th rowspan="2" style="width: 40px;">NºOrd</th>
+                    <th rowspan="2" style="width: 200px;">NOME COMPLETO</th>
+                    {{#each disciplinas}}
+                        <th colspan="2" style="text-align: center;">{{nome}}</th>
+                    {{/each}}
+                </tr>
+                {{#each disciplinas}}
+                    <td>Just</td>
+                    <td>Injust</td>
+                {{/each}}
+            </thead>
+            <tbody>
+                {{#each candidatos}}
+                    <tr>
+                        <td>{{id}}</td>
+                        <td>{{nome}}</td>
+                        {{#each disciplinas}}
+                            <td></td>
+                            <td></td>
+                        {{/each}}
+                    </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="signature">
+        <p style="font-weight: bold; margin-bottom: 10px;">Huambo, aos {{header.formattedToday}}</p>
+        <p>O Subdiretor Pedagógico</p>
+        <p style="margin: 0;">_________________________________________</p>
+        <p style="margin-top: 1px; font-weight: bold;">Aurélio João Sales Duarte Bandeira</p>
+    </div>
+</body>
+</html>

@@ -68,22 +68,10 @@ const filterData = (req, res) => {
         });
 };
 
-const listAll = (req, res) => {
-    const { start_date, end_date } = req.params;
-    Despesa.findAll()
-        .then(data => {
-            res.status(200).json(data);
-        })
-        .catch(err => {
-            res.status(500).json(err);
-        });
-};
-
 module.exports = {
     create,
     read,
     update,
     remove,
-    filterData,
-    listAll
+    filterData
 };

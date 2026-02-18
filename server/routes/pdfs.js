@@ -1,6 +1,9 @@
 
 const { 
+          DistribuicaoExame, 
           AnoLectivo, 
+          Candidato, 
+          CandidatoInscricao, 
           Curso, 
           Sala,
           Matricula,
@@ -10,21 +13,23 @@ const {
           ItensPagamento,
           Emolumento,
           EmolumentoPreco,
+          Utilizador,
+          Disciplina,
+          DisciplinaDistribuicao,
+          DisciplinaProfessor,
           Despesa,
-          Estudante,
-          User,
-          DisciplinaClasse,
-          Disciplina
+          FolhaSalarial, 
+          ItensFolhaSalarial, 
+          TabelaSalarial, 
+          Contrato, 
+          Funcionario
       } = require("../models/Model");
 var pdf = require("pdf-creator-node")
-const path = require("path")
 const moment = require("moment")
 const Sequelize = require("sequelize")
 const {numberFormat,formattedToday} = require('../config/utils');
 var fs = require("fs")
 const timestamp = Date.now().toString();
-const logo = "http://localhost:9000/api/mediafiles/castro.jpeg"
-const logoRepublica = "http://localhost:9000/api/mediafiles/insignia.png"
 
 var options = {
     format: "A4",
@@ -45,103 +50,324 @@ var options = {
     }*/
 };
 
-async function createComprovativoMatricula(req, res) {
-  const { id } = req.params;
-
-  // Carrega o template HTML
-  const html = fs.readFileSync("./templates/boletim_matricula.html", "utf8");
-
-  const matricula = await Matricula.findOne({
-    where: { id },
-    include: [
-      { model: Estudante },
-      { model: AnoLectivo },
-      { model: Sala },
-      { model: Periodo },
-      { model: Classe },
-      { model: User }
-    ]
-  });
-
-  const curso = await Curso.findOne({ where: { id: matricula.curso_id } });
-
-  // Mapear números de meses para seus nomes em português
-  const meses = [
-    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
-  ];
-
-  // Obter a data de hoje
-  const dataHoje = new Date();
-  const dia = dataHoje.getDate();
-  const mes = meses[dataHoje.getMonth()];
-  const ano = dataHoje.getFullYear();
-
-  // Formatar a data no formato desejado
-  const dataFormatada = `Huambo aos ${dia} de ${mes} de ${ano}`;
-
+async function createListaDistribuicaoExameAcesso(req, res){
+  const {ano_id, curso_id, sala_id} = req.body;
+  let num =1;
+  var html = fs.readFileSync("./templates/lista_distribuicao_exame_acesso.html", "utf8");
+    // Read HTML Template
+  const candidatos = await DistribuicaoExame.findAll({where:{ano_id, curso_id, sala_id},include:[{
+          model:Candidato,
+      },{
+          model:Curso
+      },{
+          model:Sala
+      }],
+      order:[[Candidato, 'nome', 'ASC']],
+  })
+  const curso = await Curso.findOne({where:{id:curso_id}})
+  const ano = await AnoLectivo.findOne({where:{id:ano_id}})
+  const sala = await Sala.findOne({where:{id:sala_id}})
   const dadosPDF = {
-    header: {
-      nome_curso: curso.nome,
-      nome_ano: matricula.AnoLectivo.nome,
-      ano: new Date().getFullYear(),
-      logo:logo
+    header:{
+      nome_curso:curso.nome,
+      nome_ano:ano.nome,
+      nome_sala:sala.nome,
+      horario_sala:sala.horario,
     },
-    estudante: {
-      id: matricula.id,
-      data_matricula: matricula.createdAt,
-      numero: matricula.Estudante.numero,
-      numero_processual: matricula.Estudante.numero_processual,
-      data_nascimento: moment(matricula.Estudante.data_de_nascimento).format("DD / MM / YYYY"),
-      idade: new Date().getFullYear() - moment(matricula.Estudante.data_de_nascimento).format("YYYY"),
-      nome: matricula.Estudante.nome,
-      numero_processo: matricula.Estudante.numero_processo,
-      nome_pai: matricula.Estudante.nome_pai,
-      nome_mae: matricula.Estudante.nome_mae,
-      identificacao: matricula.Estudante.identificacao,
-      local_emissao_identificacao: matricula.Estudante.local_emissao_identificacao,
-      data_emissao_bi: moment(matricula.Estudante.data_emissao_bi).format("DD / MM / YYYY"),
-      telefone: matricula.Estudante.telefone,
-      email: matricula.Estudante.email,
-      nacionalidade: matricula.Estudante.nacionalidade,
-      naturalidade: matricula.Estudante.naturalidade,
-      municipio: matricula.Estudante.municipio,
-      provincia: matricula.Estudante.provincia,
-      bairro: matricula.Estudante.bairro,
-      genero: matricula.Estudante.genero,
-      estado_civil: matricula.Estudante.estado_civil,
-      lingua_opcao: matricula.Estudante.lingua_opcao,
-      escola_anterior: matricula.Estudante.escola_anterior,
-      residencia: matricula.Estudante.residencia,
-      necessidade_especial: matricula.Estudante.necessidade_especial,
-      encarregado: matricula.Estudante.encarregado,
-      contacto_encarregado: matricula.Estudante.contacto_encarregado,
-      grau_parentesco: matricula.Estudante.grau_parentesco,
-      sala: matricula.Sala.nome,
-      periodo: matricula.Periodo.nome,
-      classe: matricula.Classe.nome,
-      operador: matricula.User.nome,
-      data: moment(matricula.createdAt).format("DD-MM-YYYY"),
-      today: dataFormatada // Passa a data formatada para o objeto de dados
-    }
-  };
-
-  const document = {
+    candidatos:candidatos.map(item => ({
+      id:num++,
+      nome:item.Candidato.nome,
+      identificacao:item.Candidato.identificacao,
+      genero:item.Candidato.genero,
+    }))
+  }
+  var document = {
     html: html,
     data: dadosPDF,
-    type: "buffer", // Gera como buffer
+    path: './mediafiles/'+timestamp+'.pdf',
+    type: "",
   };
-
   pdf
     .create(document, options)
-    .then((buffer) => {
-      res.setHeader("Content-Type", "application/pdf");
-      res.setHeader("Content-Disposition", "inline; filename=comprovativo_matricula.pdf");
-      res.status(200).send(buffer); // Envia o buffer como resposta
+    .then((doc) => {
+        res.status(201).json({url:timestamp+'.pdf'})
     })
     .catch((error) => {
-      console.error(error);
-      res.status(500).send("Erro ao gerar o PDF");
+        console.error(error);
+    });
+}
+
+async function createResultadoExameAcesso(req, res){
+  const {ano_id, curso_id, sala_id} = req.body;
+  let num =1;
+  var html = fs.readFileSync("./templates/resultado_exame_acesso.html", "utf8");
+    // Read HTML Template
+  const candidatos = await DistribuicaoExame.findAll({where:{ano_id, curso_id, sala_id},include:[{
+          model:Candidato,
+      },{
+          model:Curso
+      },{
+          model:Sala
+      }],
+      order:[['nota', 'DESC']],
+  })
+  const curso = await Curso.findOne({where:{id:curso_id}})
+  const ano = await AnoLectivo.findOne({where:{id:ano_id}})
+  const sala = await Sala.findOne({where:{id:sala_id}})
+  const dadosPDF = {
+    header:{
+      nome_curso:curso.nome,
+      nome_ano:ano.nome,
+      nome_sala:sala.nome,
+      horario_sala:sala.horario,
+    },
+    candidatos:candidatos.map(item => ({
+      id:num++,
+      nome:item.Candidato.nome,
+      identificacao:item.Candidato.identificacao,
+      genero:item.Candidato.genero,
+      nota:item.nota,
+      obs:item.obs,
+    }))
+  }
+  var document = {
+    html: html,
+    data: dadosPDF,
+    path: './mediafiles/'+timestamp+'.pdf',
+    type: "",
+  };
+  pdf
+    .create(document, options)
+    .then((doc) => {
+        res.status(201).json({url:timestamp+'.pdf'})
+    })
+    .catch((error) => {
+        console.error(error);
+    });
+}
+
+async function createCriptografiaExameAcesso(req, res){
+  const {ano_id, curso_id, sala_id} = req.body;
+  let num =1;
+  var html = fs.readFileSync("./templates/encriptar_prova_exame_acesso.html", "utf8");
+    // Read HTML Template
+  const candidatos = await DistribuicaoExame.findAll({where:{ano_id, curso_id, sala_id},include:[{
+          model:Candidato,
+      },{
+          model:Curso
+      },{
+          model:Sala
+      }],
+      order:[[Candidato, 'nome', 'ASC']],
+  })
+  const curso = await Curso.findOne({where:{id:curso_id}})
+  const ano = await AnoLectivo.findOne({where:{id:ano_id}})
+  const sala = await Sala.findOne({where:{id:sala_id}})
+  const dadosPDF = {
+    candidatos:candidatos.map(item => ({
+      id:num++,
+      nome:item.Candidato.nome,
+      identificacao:item.Candidato.identificacao,
+      genero:item.Candidato.genero,
+      nota:item.nota,
+      obs:item.obs,
+      nome_ano:ano.nome,
+      nome_curso:curso.nome,
+      nome_sala:sala.nome,
+      nome_horario:sala.nome,
+    }))
+  }
+  var document = {
+    html: html,
+    data: dadosPDF,
+    path: './mediafiles/'+timestamp+'.pdf',
+    type: "",
+  };
+  pdf
+    .create(document, options)
+    .then((doc) => {
+        res.status(201).json({url:timestamp+'.pdf'})
+    })
+    .catch((error) => {
+        console.error(error);
+    });
+}
+
+async function createListaGeralExameAcesso(req, res){
+  const {ano_id, curso_id} = req.body;
+  let num =1;
+  var html = fs.readFileSync("./templates/lista_geral_exame_acesso.html", "utf8");
+    // Read HTML Template
+  const candidatos = await CandidatoInscricao.findAll({where:{ano_id, curso_id},include:[{
+          model:Candidato,
+      },{
+          model:Curso
+      }],
+      order:[[Candidato, 'nome', 'ASC']],
+  })
+  const curso = await Curso.findOne({where:{id:curso_id}})
+  const ano = await AnoLectivo.findOne({where:{id:ano_id}})
+  const dadosPDF = {
+    header:{
+      nome_curso:curso.nome,
+      nome_ano:ano.nome,
+    },
+    candidatos:candidatos.map(item => ({
+      id:num++,
+      nome:item.Candidato.nome,
+      identificacao:item.Candidato.identificacao,
+      genero:item.Candidato.genero,
+    }))
+  }
+  var document = {
+    html: html,
+    data: dadosPDF,
+    path: './mediafiles/'+timestamp+'.pdf',
+    type: "",
+  };
+  pdf
+    .create(document, options)
+    .then((doc) => {
+        res.status(201).json({url:timestamp+'.pdf'})
+    })
+    .catch((error) => {
+        console.error(error);
+    });
+}
+
+async function createComprovativoExameAcesso(req, res){
+  const {id} = req.params;
+  // Read HTML Template
+  var html = fs.readFileSync("./templates/ficha_inscricao_exame_acesso.html", "utf8");
+  const candidato = await CandidatoInscricao.findOne({
+    where:{id},
+    include:[
+      {
+          model:Candidato,
+      },
+      {
+          model:Curso
+      },
+      {
+          model:AnoLectivo
+      }
+    ]
+  })
+  const dadosPDF = {
+    header:{
+      nome_curso:candidato.Curso.nome,
+      nome_ano:candidato.AnoLectivo.nome,
+    },
+    candidato:{
+      numero:candidato.Candidato.numero,
+      nome:candidato.Candidato.nome,
+      nome_pai:candidato.Candidato.nome_pai,
+      nome_mae:candidato.Candidato.nome_mae,
+      identificacao:candidato.Candidato.identificacao,
+      telefone:candidato.Candidato.telefone,
+      email:candidato.Candidato.email,
+      nacionalidade:candidato.Candidato.nacionalidade,
+      naturalidade:candidato.Candidato.naturalidade,
+      municipio:candidato.Candidato.municipio,
+      comuna:candidato.Candidato.comuna,
+      bairro:candidato.Candidato.bairro,
+      genero:candidato.Candidato.genero,
+      estado_civil:candidato.Candidato.estado_civil,
+      escola_anterior:candidato.Candidato.escola_anterior,
+      residencia:candidato.Candidato.residencia,
+      necessidade_especial:candidato.Candidato.necessidade_especial,
+    }
+  }
+  var document = {
+    html: html,
+    data: dadosPDF,
+    path: './mediafiles/'+timestamp+'.pdf',
+    type: "",
+  };
+  pdf
+    .create(document, options)
+    .then((doc) => {
+        res.status(201).json({url:timestamp+'.pdf'})
+    })
+    .catch((error) => {
+        console.error(error);
+    });
+}
+
+async function createComprovativoMatricula(req, res){
+  const {id,curso_id} = req.params;
+  // Read HTML Template
+  var html = fs.readFileSync("./templates/boletim_matricula.html", "utf8");
+  const curso = await Curso.findOne({where:{id:curso_id}})
+  const matricula = await Matricula.findOne({
+    where:{id},
+    include:[
+      {
+          model:Candidato,
+      },
+      {
+          model:AnoLectivo
+      },
+      {
+          model:Sala
+      },
+      {
+          model:Periodo
+      },
+      {
+          model:Classe
+      },
+      {
+          model:Utilizador
+      }
+    ]
+  })
+  console.log(matricula)
+  const dadosPDF = {
+    header:{
+      nome_curso:curso.nome,
+      nome_ano:matricula.AnoLectivo.nome,
+    },
+    candidato:{
+      id:candidato.id,
+      data_matricula:matricula.createdAt,
+      numero:matricula.Candidato.numero,
+      nome:matricula.Candidato.nome,
+      nome_pai:matricula.Candidato.nome_pai,
+      nome_mae:matricula.Candidato.nome_mae,
+      identificacao:matricula.Candidato.identificacao,
+      telefone:matricula.Candidato.telefone,
+      email:matricula.Candidato.email,
+      nacionalidade:matricula.Candidato.nacionalidade,
+      naturalidade:matricula.Candidato.naturalidade,
+      municipio:matricula.Candidato.municipio,
+      comuna:matricula.Candidato.comuna,
+      bairro:matricula.Candidato.bairro,
+      genero:matricula.Candidato.genero,
+      estado_civil:matricula.Candidato.estado_civil,
+      escola_anterior:matricula.Candidato.escola_anterior,
+      residencia:matricula.Candidato.residencia,
+      necessidade_especial:matricula.Candidato.necessidade_especial,
+      sala:matricula.Sala.nome,
+      periodo:matricula.Periodo.nome,
+      classe:matricula.Classe.nome,
+      operador:matricula.Utilizador.nome,
+      data:moment(matricula.createdAt).format("DD-MM-YYYY")
+    }
+  }
+  var document = {
+    html: html,
+    data: dadosPDF,
+    path: './mediafiles/'+timestamp+'.pdf',
+    type: "",
+  };
+  pdf
+    .create(document, options)
+    .then((doc) => {
+        res.status(201).json({url:timestamp+'.pdf'})
+    })
+    .catch((error) => {
+        console.error(error);
     });
 }
 
@@ -150,22 +376,15 @@ async function createListaMatriculados(req, res){
   let num =1;
   var html = fs.readFileSync("./templates/lista_estudantes_matriculados.html", "utf8");
     // Read HTML Template
-    const candidatos = await Matricula.findAll({
-      where: {
-        ano_id, 
-        sala_id, 
-        estado: { [Sequelize.Op.not]: 'Cancelada' } 
+  const candidatos = await Matricula.findAll({where:{ano_id, sala_id},include:[{
+          model:Candidato,
       },
-      include: [
-        {
-          model: Estudante,
-        },
-        {
-          model: Curso,
-        }
-      ],
-      order: [[{ model: Estudante }, 'nome', 'ASC']], // Ordena por nome dos estudantes
-    });    
+      {
+          model:Curso
+      }
+    ],
+      order:[[Candidato, 'nome', 'ASC']],
+  })
   const curso = await Curso.findOne({where:{id:curso_id}})
   const ano = await AnoLectivo.findOne({where:{id:ano_id}})
   const periodo = await Periodo.findOne({where:{id:periodo_id}})
@@ -178,103 +397,24 @@ async function createListaMatriculados(req, res){
       nome_periodo:periodo.nome,
       nome_classe:classe.nome,
       nome_sala:sala.nome,
-      numero_sala:sala.numero_sala,
-      formattedToday:formattedToday,
-      logo:logo
     },
     candidatos:candidatos.map(item => ({
       id:num++,
-      nome:item.Estudante ? item.Estudante.nome : "Não definido",
-      identificacao:item.Estudante ? item.Estudante.identificacao : "Não definido",
-      numero_processual:item.Estudante ? item.Estudante.numero_processual : "Não definido",
+      nome:item.Candidato.nome,
+      identificacao:item.Candidato.identificacao,
+      numero:item.Candidato.numero,
     }))
   }
-  const document = {
+  var document = {
     html: html,
     data: dadosPDF,
-    type: "buffer"
+    path: './mediafiles/'+timestamp+'.pdf',
+    type: "",
   };
-
   pdf
     .create(document, options)
-    .then((buffer) => {
-      res.setHeader("Content-Type", "application/pdf");
-      res.setHeader("Content-Disposition", "inline; filename=lista_estudantes_matriculados.pdf");
-      res.status(200).send(buffer); 
-    })
-    .catch((error) => {
-        console.error(error);
-    });
-}
-
-async function createMapaDeFaltas(req, res){
-  const {ano_id, curso_id, periodo_id, classe_id, sala_id} = req.params;
-  var options = {
-    format: "A4",
-    orientation: "landscape",
-    border: "10mm",
-  }
-  const disciplinas = await DisciplinaClasse.findAll({where:{classe_id,curso_id}, include:[Disciplina]})
-  let num =1;
-  var html = fs.readFileSync("./templates/mapa_controlo_faltas.html", "utf8");
-    // Read HTML Template
-    const candidatos = await Matricula.findAll({
-      where: {
-        ano_id, 
-        sala_id, 
-        estado: { [Sequelize.Op.not]: 'Cancelada' } 
-      },
-      include: [
-        {
-          model: Estudante,
-        },
-        {
-          model: Curso,
-        }
-      ],
-      order: [[{ model: Estudante }, 'nome', 'ASC']], 
-    });    
-  const curso = await Curso.findOne({where:{id:curso_id}})
-  const ano = await AnoLectivo.findOne({where:{id:ano_id}})
-  const periodo = await Periodo.findOne({where:{id:periodo_id}})
-  const classe = await Classe.findOne({where:{id:classe_id}})
-  const sala = await Sala.findOne({where:{id:sala_id}})
-  const dadosPDF = {
-    header:{
-      nome_curso:curso.nome,
-      nome_ano:ano.nome,
-      nome_periodo:periodo.nome,
-      nome_classe:classe.nome,
-      nome_sala:sala.nome,
-      numero_sala:sala.numero_sala,
-      formattedToday:formattedToday,
-      logo:logo
-    },
-    candidatos:candidatos.map(item => ({
-      id:num++,
-      nome:item.Estudante ? item.Estudante.nome : "Não definido",
-      identificacao:item.Estudante ? item.Estudante.identificacao : "Não definido",
-      numero_processual:item.Estudante ? item.Estudante.numero_processual : "Não definido",
-      disciplinas:disciplinas.map(item => ({
-        nome:item.Disciplina.nome
-      }))
-    })),
-    disciplinas:disciplinas.map(item => ({
-      nome:item.Disciplina.nome
-    }))
-  }
-  const document = {
-    html: html,
-    data: dadosPDF,
-    type: "buffer"
-  };
-
-  pdf
-    .create(document, options)
-    .then((buffer) => {
-      res.setHeader("Content-Type", "application/pdf");
-      res.setHeader("Content-Disposition", "inline; filename=lista_estudantes_matriculados.pdf");
-      res.status(200).send(buffer); 
+    .then((doc) => {
+        res.status(201).json({url:timestamp+'.pdf'})
     })
     .catch((error) => {
         console.error(error);
@@ -282,159 +422,101 @@ async function createMapaDeFaltas(req, res){
 }
 
 async function createFluxoDeCaixa(req, res){
-    var options = {
-        format: "A4",
-        orientation: "portrait",
-        border: "10mm",
-        phantomPath: path.resolve(
-            "./node_modules/phantomjs-prebuilt/lib/phantom/bin/phantomjs.exe"
-        ),
-    };
-    const {start_date, end_date} = req.params;
-    let num =1;
-    // Note: Garantir que o path para o HTML é acessível
-    var html = fs.readFileSync("./templates/fluxo_de_caixa.html", "utf8"); 
-
-    // 1. CONSULTA AOS PAGAMENTOS (Sem SUM e GROUP BY)
-    const pagamentosData = await Pagamento.findAll({
-        where:{
-            createdAt:{
-                [Sequelize.Op.between]:[start_date, end_date]
-            }
-        },
-        attributes: [
-            'id',
-            'createdAt',
-        ],
-        include: [
-            {
-                model: ItensPagamento,
-                attributes: ['desconto', 'multa'],
-                include: [
-                    {
-                        model: EmolumentoPreco,
-                        attributes: ['id', 'preco'],
-                        include:[
-                            {
-                                model:Emolumento,
-                                attributes:['id','nome']
-                            }
-                        ]
-                    }
-                ],
-                required: true 
-            },
-            {
-                model:User,
-                attributes:['id','nome']
-            },
-            {
-                model:Estudante,
-                attributes:['nome']
-            }
-        ],
-    })
-
-    const despesas = await Despesa.findAll({
-        where:{
-            createdAt:{
-                [Sequelize.Op.between]:[start_date, end_date]
-            }
-        },
-        include:[User]
-    })
-
-    // 2. PROCESSAMENTO DOS PAGAMENTOS NO JAVASCRIPT
-    let totalEntradasCalculado = 0;
-    
-    const pagamentosFormatados = pagamentosData.map(pagamento => {
-        let totalDocumento = 0;
-        let itensPagosDescricao = 'Nenhum item pago';
-
-        if (pagamento.ItensPagamentos && pagamento.ItensPagamentos.length > 0) {
-            // A. Calcular o total
-            totalDocumento = pagamento.ItensPagamentos.reduce((total, item) => {
-                // *** CORREÇÃO APLICADA AQUI ***
-                // Navegação direta: item.EmolumentoPreco
-                const preco = item.EmolumentoPreco ? item.EmolumentoPreco.preco : 0; 
-                
-                const desconto = item.desconto || 0;
-                const multa = item.multa || 0;
-                const valorLiquido = preco - (preco * desconto / 100) + (preco * multa / 100);
-                return total + valorLiquido;
-            }, 0);
-            
-            // B. Criar a nova descrição (Itens Pagos)
-            itensPagosDescricao = pagamento.ItensPagamentos
-                .map(item => {
-                    // *** CORREÇÃO APLICADA AQUI ***
-                    // Navegação direta: item.EmolumentoPreco.Emolumento
-                    return item.EmolumentoPreco && item.EmolumentoPreco.Emolumento 
-                        ? item.EmolumentoPreco.Emolumento.nome 
-                        : 'Emolumento Desconhecido';
-                })
-                .join(', ');
+  var options = {
+    format: "A4",
+    orientation: "portrait",
+    border: "10mm",
+  }
+  const {start_date, end_date} = req.body;
+  let num =1;
+  var html = fs.readFileSync("./templates/fluxo_de_caixa.html", "utf8");
+  
+  const pagamentos = await Pagamento.findAll({
+      where:{
+        createdAt:{
+          [Sequelize.Op.between]:[start_date, end_date]
         }
+      },
+      include: [
+          {
+              model: ItensPagamento,
+              include: [
+                  
+                  {
+                      model: EmolumentoPreco,
+                      attributes: ['id', 'preco'],
+                      include:[
+                          {
+                              model:Emolumento,
+                              attributes:['id','nome']
+                          }
+                      ]
+                  }
+              ]
+          },
+          {
+            model:Utilizador,
+            attributes:['id','nome']
+          },
+          {
+            model:Candidato,
+            attributes:['nome']
+          }
+      ],
+      attributes: [
+          'id',
+          'descricao',
+          'createdAt',
+          [Sequelize.fn('SUM', Sequelize.literal('preco - (preco * desconto / 100) + (preco * multa / 100)')), 'totalPrice']
+      ],
+      group: ['Pagamento.id'] 
+  })
 
-        totalEntradasCalculado += totalDocumento;
+  const despesas = await Despesa.findAll({
+      where:{
+          createdAt:{
+              [Sequelize.Op.between]:[start_date, end_date]
+          }
+      },
+      include:[Utilizador]
+  })
 
-        return {
-            id: num++,
-            descricao: itensPagosDescricao,
-            estudante: pagamento.Estudante.nome,
-            valor: totalDocumento, 
-            valorFormatado: numberFormat(totalDocumento, 2, ',', '.'),
-            utilizador: pagamento.User.nome,
-            data: moment(pagamento.createdAt).format("DD-MM-YYYY"),
-        };
-    });
-
-    // 3. MONTAGEM DO PDF
-    let totalSaidasCalculado = 0;
-    despesas.map(item=>{
-        totalSaidasCalculado += item.valor
+  var dadosPDF = {
+    header:{
+      start_date:start_date,
+      end_date:end_date
+    },
+    pagamentos:pagamentos.map(item => ({
+      id:num++,
+      descricao:item.descricao,
+      estudante:item.Candidato.nome,
+      valor:numberFormat(item.dataValues.totalPrice,2,',','.'),
+      utilizador:item.Utilizador.nome,
+      data:moment(item.createdAt).format("DD-MM-YYYY"),
+    })),
+    despesas:despesas.map(item => ({
+      id:num++,
+      descricao:item.descricao,
+      valor:numberFormat(item.valor,2,',','.'),
+      referencia:item.referencia,
+      utilizador:item.Utilizador.nome,
+      data:moment(item.createdAt).format("DD-MM-YYYY"),
+    }))
+  }
+  var document = {
+    html: html,
+    data: dadosPDF,
+    path: './mediafiles/'+timestamp+'.pdf',
+    type: "",
+  };
+  pdf
+    .create(document, options)
+    .then((doc) => {
+        res.status(201).json({url:timestamp+'.pdf'})
     })
-
-    var dadosPDF = {
-        header:{
-            start_date:moment(start_date).format("DD-MM-YYYY"),
-            end_date:moment(end_date).format("DD-MM-YYYY"),
-            logo:logo,
-            data:formattedToday,
-            totalEntradas: numberFormat(totalEntradasCalculado, 2, ',', '.'),
-            totalSaidas: numberFormat(totalSaidasCalculado, 2, ',', '.')
-        },
-        pagamentos: pagamentosFormatados.map(item => ({
-             ...item, 
-             valor: item.valorFormatado 
-        })),
-        despesas:despesas.map(item => ({
-            id:num++,
-            descricao:item.descricao,
-            valor:numberFormat(item.valor,2,',','.'),
-            referencia:item.referencia,
-            utilizador:item.User.nome,
-            data:moment(item.createdAt).format("DD-MM-YYYY"),
-        }))
-    }
-    
-    var document = {
-        html: html,
-        data: dadosPDF,
-        path: './mediafiles/'+timestamp+'.pdf',
-        type: "buffer",
-    };
-    pdf
-        .create(document, options)
-        .then((doc) => {
-            res.setHeader("Content-Type", "application/pdf");
-            res.setHeader("Content-Disposition", "inline; filename=fluxo_de_caixa.pdf");
-            res.status(200).send(doc); 
-        })
-        .catch((error) => {
-            console.error(error);
-             res.status(500).json({ error: 'Erro ao gerar PDF de Fluxo de Caixa: ' + error.message });
-        });
+    .catch((error) => {
+        console.error(error);
+    });
 }
 
 async function createComprovativoPagamento(req, res){
@@ -448,18 +530,17 @@ async function createComprovativoPagamento(req, res){
   var html = fs.readFileSync("./templates/comprovativo_pagamento.html", "utf8");
     // Read HTML Template
   const itens = await ItensPagamento.findAll({where:{pagamento_id},include:[Emolumento, EmolumentoPreco]})
-  const pagamento = await Pagamento.findOne({where:{id:pagamento_id},include:[Estudante,AnoLectivo]})
-  const estudante = await Estudante.findOne({where:{id:pagamento.estudante_id}});
-  const utilizador = await User.findOne({where:{id:pagamento.user_id}});
+  const pagamento = await Pagamento.findOne({where:{id:pagamento_id},include:[Candidato,AnoLectivo]})
+  const estudante = await Candidato.findOne({where:{id:pagamento.estudante_id}});
+  const utilizador = await Utilizador.findOne({where:{id:pagamento.user_id}});
   const matricula = await Matricula.findOne({where:{ano_id:pagamento.ano_id, estudante_id: pagamento.estudante_id},include:[Classe,Curso,Sala]})
   
   var dadosPDF = {
     header:{
       id:pagamento.id,
       ano:pagamento.AnoLectivo.nome,
-      estudante:pagamento.Estudante.nome,
-      data:formattedToday,
-      logo:logo
+      estudante:pagamento.Candidato.nome,
+      data:formattedToday
     },
     footer:{
       subtotal:0,
@@ -500,126 +581,171 @@ async function createComprovativoPagamento(req, res){
     html: html,
     data: dadosPDF,
     path: './mediafiles/'+timestamp+'.pdf',
-    type: "buffer",
+    type: "",
   };
   pdf
     .create(document, options)
     .then((doc) => {
-        res.setHeader("Content-Type", "application/pdf");
-        res.setHeader("Content-Disposition", "inline; filename=comprovativo_pagamento.pdf");
-        res.status(200).send(doc); 
+        res.status(201).json({url:timestamp+'.pdf'})
     })
     .catch((error) => {
         console.error(error);
     });
 }
 
-async function createDeclaracaoFrequencia(req, res) {
-  const { id } = req.params;
+async function createPautaTrimestral(req, res){
 
-  // Carrega o template HTML
-  const html = fs.readFileSync("./templates/declaracao_frequencia.html", "utf8");
+  const {ano_id, curso_id, sala_id,  classe_id, trimestre_id} = req.body;
 
-  const matricula = await Matricula.findOne({
-    where: { id },
-    include: [
-      { model: Estudante },
-      { model: AnoLectivo },
-      { model: Sala },
-      { model: Periodo },
-      { model: Classe },
-      { model: User }
-    ]
-  });
+  var options = {
+    format: "A3",
+    orientation: "landscape",
+    border: "1mm",
+  }
 
-  const curso = await Curso.findOne({ where: { id: matricula.curso_id } });
+  let num =1;
 
-  // Mapear números de meses para seus nomes em português
-  const meses = [
-    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
-  ];
-
-  // Obter a data de hoje
-  const dataHoje = new Date();
-  const dia = dataHoje.getDate();
-  const mes = meses[dataHoje.getMonth()];
-  const ano = dataHoje.getFullYear();
-
-  // Formatar a data no formato desejado
-  const dataFormatada = `Huambo aos ${dia} de ${mes} de ${ano}`;
-
-  const dadosPDF = {
-    header: {
-      nome_curso: curso.nome,
-      nome_ano: matricula.AnoLectivo.nome,
-      ano: new Date().getFullYear(),
-      logo:logo,
-      insignia:logoRepublica
-    },
-    estudante: {
-      id: matricula.id,
-      data_matricula: matricula.createdAt,
-      numero: matricula.Estudante.numero,
-      numero_processual: matricula.Estudante.numero_processual,
-      data_nascimento: moment(matricula.Estudante.data_de_nascimento).format("DD / MM / YYYY"),
-      idade: new Date().getFullYear() - moment(matricula.Estudante.data_de_nascimento).format("YYYY"),
-      nome: matricula.Estudante.nome,
-      numero_processo: matricula.Estudante.numero_processo,
-      nome_pai: matricula.Estudante.nome_pai,
-      nome_mae: matricula.Estudante.nome_mae,
-      identificacao: matricula.Estudante.identificacao,
-      local_emissao_identificacao: matricula.Estudante.local_emissao_identificacao,
-      data_emissao_bi: moment(matricula.Estudante.data_emissao_bi).format("DD / MM / YYYY"),
-      telefone: matricula.Estudante.telefone,
-      email: matricula.Estudante.email,
-      nacionalidade: matricula.Estudante.nacionalidade,
-      naturalidade: matricula.Estudante.naturalidade,
-      municipio: matricula.Estudante.municipio,
-      provincia: matricula.Estudante.provincia,
-      bairro: matricula.Estudante.bairro,
-      genero: matricula.Estudante.genero,
-      estado_civil: matricula.Estudante.estado_civil,
-      lingua_opcao: matricula.Estudante.lingua_opcao,
-      escola_anterior: matricula.Estudante.escola_anterior,
-      residencia: matricula.Estudante.residencia,
-      necessidade_especial: matricula.Estudante.necessidade_especial,
-      encarregado: matricula.Estudante.encarregado,
-      contacto_encarregado: matricula.Estudante.contacto_encarregado,
-      grau_parentesco: matricula.Estudante.grau_parentesco,
-      sala: matricula.Sala.nome,
-      periodo: matricula.Periodo.nome,
-      classe: matricula.Classe.nome,
-      operador: matricula.User.nome,
-      data: moment(matricula.createdAt).format("DD-MM-YYYY"),
-      today: dataFormatada // Passa a data formatada para o objeto de dados
+  const html = fs.readFileSync("./templates/pauta_trimestral.html", "utf8");
+ 
+  const matriculados = await Matricula.findAll({where:{ano_id, classe_id, sala_id}, include:[Candidato], order:[[Candidato, 'nome', 'ASC']]});
+  const disciplinas = await DisciplinaDistribuicao.findAll({where:{ano_id, curso_id, classe_id},include:[
+    {
+      model:Disciplina
     }
-  };
+  ]})
+  const dadosPDF = {
+    estudantes:matriculados.map(item => ({
+      id:num++,
+      nome:item.Candidato.nome,
+      disciplinas:disciplinas.map(item => ({
+        id:item.Disciplina.id,
+        nome:item.Disciplina.codigo
+      }))
+    })),
 
-  const document = {
+    disciplinas:disciplinas.map(item => ({
+      id:item.Disciplina.id,
+      nome:item.Disciplina.codigo
+    }))
+  }
+
+  var document = {
     html: html,
     data: dadosPDF,
-    type: "buffer", // Gera como buffer
+    path: './mediafiles/'+timestamp+'.pdf',
+    type: "",
   };
-
   pdf
     .create(document, options)
-    .then((buffer) => {
-      res.setHeader("Content-Type", "application/pdf");
-      res.setHeader("Content-Disposition", "inline; filename=comprovativo_matricula.pdf");
-      res.status(200).send(buffer); // Envia o buffer como resposta
+    .then((doc) => {
+        res.status(201).json({url:timestamp+'.pdf'})
     })
     .catch((error) => {
-      console.error(error);
-      res.status(500).send("Erro ao gerar o PDF");
+        console.error(error);
+    });
+}
+
+async function createFolhaSalarial(req, res){
+
+  const {id} = req.params;
+
+  var options = {
+    format: "A4",
+    orientation: "landscape",
+    border: "5mm",
+  }
+
+  let num =1;
+
+  const html = fs.readFileSync("./templates/folha_salarial.html", "utf8");
+
+  const folhaSalarial = await FolhaSalarial.findOne({ 
+    where: { id },
+    include:[
+        {
+            model:ItensFolhaSalarial,
+            include:[
+                {
+                    model:TabelaSalarial,
+                    attributes:['valor']
+                },
+                {
+                    model:Contrato,
+                    include:[
+                        {
+                            model:Funcionario,
+                        }
+                    ]
+                },
+            ]
+        },
+        {
+            model:Utilizador,
+            attributes:['id','nome']
+        },
+        {
+            model:AnoLectivo
+        }
+    ]
+    })
+ 
+  
+  const dadosPDF = {
+    folha_salarial:{
+      mes:folhaSalarial.mes,
+      totalDocumento:0
+    },
+    itens:folhaSalarial.ItensFolhaSalarials.map(item => ({
+      id:num++,
+      funcionario:item.Contrato.Funcionario.nome,
+      identificacao:item.Contrato.Funcionario.identificacao,
+      iban:item.Contrato.Funcionario.iban,
+      salario_base:numberFormat(item.TabelaSalarial.valor,2,',','.'),
+      inss:numberFormat(item.ss*item.TabelaSalarial.valor/100,2,',','.'),
+      irt:numberFormat(item.irt*item.TabelaSalarial.valor/100,2,',','.'),
+      faltas:numberFormat(item.faltas,2,',','.'),
+      carga_diaria:item.carga_horaria_diaria,
+      carga_mensal:item.carga_horaria_mensal,
+      bonus:numberFormat(item.bonus,2,',','.'),
+      subsidios:numberFormat(item.subsidios,2,',','.'),
+      horas_extras:numberFormat(item.horas_extras,2,',','.'),
+      outros_descontos:numberFormat(item.outros_descontos,2,',','.'),
+      saldo_liquido:numberFormat(item.TabelaSalarial.valor - (folhaSalarial.descontos_globais * item.TabelaSalarial.valor / 100) - (item.ss * item.TabelaSalarial.valor / 100) - (item.irt * item.TabelaSalarial.valor / 100) - item.faltas + item.bonus + item.horas_extras - item.outros_descontos,2,',','.'),
+    }))
+  }
+
+  folhaSalarial.ItensFolhaSalarials.map(item => {
+    dadosPDF.folha_salarial.totalDocumento += (item.TabelaSalarial.valor - (folhaSalarial.descontos_globais * item.TabelaSalarial.valor / 100) - (item.ss * item.TabelaSalarial.valor / 100) - (item.irt * item.TabelaSalarial.valor / 100) - item.faltas + item.bonus + item.horas_extras - item.outros_descontos)
+  })
+
+  dadosPDF.folha_salarial.totalDocumento = numberFormat(dadosPDF.folha_salarial.totalDocumento,2,',','.')
+
+  var document = {
+    html: html,
+    data: dadosPDF,
+    path: './mediafiles/'+timestamp+'.pdf',
+    type: "",
+  };
+  pdf
+    .create(document, options)
+    .then((doc) => {
+        res.status(201).json({url:timestamp+'.pdf'})
+    })
+    .catch((error) => {
+        console.error(error);
     });
 }
 
 module.exports = {
+  createListaDistribuicaoExameAcesso,
+  createResultadoExameAcesso,
+  createCriptografiaExameAcesso,
+  createListaGeralExameAcesso,
+  createComprovativoExameAcesso,
   createComprovativoMatricula,
   createListaMatriculados,
   createComprovativoPagamento,
   createFluxoDeCaixa,
-  createMapaDeFaltas,
-  createDeclaracaoFrequencia
+  createPautaTrimestral,
+  createFolhaSalarial
 }

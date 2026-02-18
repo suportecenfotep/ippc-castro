@@ -1,6 +1,9 @@
-const { User, Notification } = require("../models/Model")
+const { User } = require("../models/Model")
 const { Io } = require("../config/server")
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+
+const timestamp = Date.now().toString();
 const secretKey = "angola";
 
 const create = (req, res) => {
@@ -73,38 +76,24 @@ const remove = (req, res) => {
     
 }
 
- const login = (req, res) => {
+async function login(req, res){
 
     const { email, senha } = req.body;
 
     User
     .findOne({ where: { email,senha } })
         .then(usuario => {
-                
                 const form = {
                     status:1
                 }
                 User.update(form,{where:{id:usuario.id}})
-                
                 Io.emit("userChange", usuario)
-
-                const push = {
-                    title:"Novo início de sessão",
-                    text:`O utilizador ${usuario.nome}, iniciou sessão no SGI`
-                }
-            
-                Notification.create(push)
-
-                Io.emit("notificationChange", push)
-                
-                jwt.sign({id:usuario.id,nome:usuario.nome}, secretKey, { expiresIn: '365d' }, (err, token) => {
+                jwt.sign({id:usuario.id,nome:usuario.nome}, secretKey, { expiresIn: '1h' }, (err, token) => {
                     if (err) {
                       res.sendStatus(500); 
                     }
                     res.json({ token:token, data:usuario });
                 });
-
-                
         })
         .catch(error => res.status({ error: error }));
 }

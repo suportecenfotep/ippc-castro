@@ -1,30 +1,30 @@
-const { Funcionario } = require("../models/Model"); // Ajuste o caminho conforme necessário
-const { gerarNumero } = require("../config/utils"); // Supondo que você tenha uma função para gerar números
+const { Funcionario } = require("../models/Model");
 
-// Método para criar um novo funcionário
-async function create(req, res) {
-    try {
-        const form = req.body;
-        
-        const existingFuncionario = await Funcionario.findOne({
-            where: {
-                identificacao: form.identificacao
-            }
-        });
+const create = (req, res) => {
+    
+    const form = req.body;
 
-        if (existingFuncionario) {
-            return res.status(500).json("Este funcionário já existe na base de dados");
+    Funcionario
+    .findOne({
+        where:{
+            identificacao:form.identificacao
         }
+    })
+    .then(funcionario => {
+        if(funcionario){
+            res.status(500).json("Este Funcionario já existe na base de dados")
+        }else{
+            Funcionario.create(form)
+            .then(data => {
+                res.status(201).json({message:"Funcionario inscrito com sucesso", data:data});
+            })
+            .catch(err => {
+                res.status(500).json(err);
+            });
+        }
+    })
+};
 
-        const data = await Funcionario.create(form);
-        res.status(201).json({ message: "Funcionário inscrito com sucesso", data: data });
-    } catch (err) {
-        console.log(err);
-        res.status(500).json(err);
-    }
-}
-
-// Método para ler um funcionário pelo ID
 const read = (req, res) => {
     const { id } = req.params;
 
@@ -37,34 +37,31 @@ const read = (req, res) => {
         });
 };
 
-// Método para atualizar um funcionário
 const update = (req, res) => {
     const { id } = req.params;
     const form = req.body;
 
     Funcionario.update(form, { where: { id } })
         .then(() => {
-            res.status(201).json({ message: "Funcionário atualizado com sucesso" });
+            res.status(201).json({message:"Funcionario atualizado com sucesso"});
         })
         .catch(err => {
             res.status(500).json(err);
         });
 };
 
-// Método para remover um funcionário
 const remove = (req, res) => {
     const { id } = req.params;
 
     Funcionario.destroy({ where: { id } })
         .then(() => {
-            res.status(201).json({ message: "Funcionário excluído com sucesso" });
+            res.status(201).json({message:"Funcionario excluído com sucesso"});
         })
         .catch(err => {
             res.status(500).json(err);
         });
 };
 
-// Método para listar todos os funcionários
 const listAll = (req, res) => {
     Funcionario.findAll()
         .then(data => {
@@ -75,8 +72,19 @@ const listAll = (req, res) => {
         });
 };
 
-// Método para listar funcionários por grupo
-const listByGrupo = (req, res) => {
+const listByStatus = (req, res) => {
+    const { status } = req.params;
+
+    Funcionario.findAll({ where: { status } })
+        .then(data => {
+            res.status(200).json(data);
+        })
+        .catch(err => {
+            res.status(500).json(err);
+        });
+};
+
+const filterData = (req, res) => {
     const { grupo } = req.params;
 
     Funcionario.findAll({ where: { grupo } })
@@ -94,5 +102,6 @@ module.exports = {
     update,
     remove,
     listAll,
-    listByGrupo
+    listByStatus,
+    filterData
 };

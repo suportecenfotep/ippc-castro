@@ -2,7 +2,7 @@ import axios from 'axios';
 import io from "socket.io-client";
 import store from '@/store';
 //const url = "http://192.168.8.73:9000";
-const url = "http://localhost:9000";
+const url = "https://app-7b9316ca-5f5b-46f1-b88e-7f3b291c1eb2.cleverapps.io";
 
 const fd = new FormData();
 

@@ -1,0 +1,83 @@
+const { Disciplina } = require("../models/Model");
+
+const create = (req, res) => {
+    
+    const form = req.body;
+
+    Disciplina.create(form)
+        .then(data => {
+            res.status(201).json({message:"Disciplina criada com sucesso", data:data});
+        })
+        .catch(err => {
+            res.status(500).json(err);
+        });
+};
+
+const read = (req, res) => {
+    const { id } = req.params;
+
+    Disciplina.findOne({ where: { id } })
+        .then(data => {
+            res.status(200).json(data);
+        })
+        .catch(err => {
+            res.status(500).json(err);
+        });
+};
+
+const update = (req, res) => {
+    const { id } = req.params;
+    const form = req.body;
+
+    Disciplina.update(form, { where: { id } })
+        .then(() => {
+            res.status(201).json({message:"Disciplina atualizada com sucesso"});
+        })
+        .catch(err => {
+            res.status(500).json(err);
+        });
+};
+
+const remove = (req, res) => {
+    const { id } = req.params;
+
+    Disciplina.destroy({ where: { id } })
+        .then(() => {
+            res.status(201).json({message:"Disciplina excluída com sucesso"});
+        })
+        .catch(err => {
+            res.status(500).json(err);
+        });
+};
+
+const listAll = (req, res) => {
+    Disciplina.findAll()
+        .then(data => {
+            res.status(200).json(data);
+        })
+        .catch(err => {
+            res.status(500).json(err);
+        });
+};
+
+const listByStatus = (req, res) => {
+    const { status } = req.params;
+
+    Disciplina
+        .findAll({ where: { status } })
+        .then(data => {
+            res.status(200).json(data);
+        })
+        .catch(err => {
+            res.status(500).json(err);
+        });
+};
+
+module.exports = {
+    create,
+    read,
+    update,
+    remove,
+    listAll,
+    listByStatus
+};

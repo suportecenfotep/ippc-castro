@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Declaração de Frequência</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1px;
+            flex-direction: column;
+        }
+
+        .page-content {
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 20px;
+            padding: 20px;
+            box-sizing: border-box;
+            page-break-after: always;
+            height: 100%;
+        }
+
+        .page-content:last-of-type {
+            page-break-after: auto;
+        }
+        
+        .insignia {
+            width: 12%;
+            display: block;
+            margin: 0 auto;
+            height: 4em;
+        }
+
+        .logo {
+            width: 12%;
+            display: block;
+            margin: 0 auto;
+            height: 4em;
+            position: absolute;
+            left: 0;
+        }
+
+        .header-details {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header-details > h3 {
+            font-weight: normal;
+            text-transform: uppercase;
+            font-size: 12px;
+            margin: 0;
+            margin-bottom: 2px;
+        }
+
+        .header-details > h4 {
+            text-transform: uppercase;
+            font-size: 12px;
+            margin: 0;
+            margin-bottom: 2px;
+            text-decoration: underline;
+        }
+
+        .boletim-text {
+            font-size: 15px;
+            text-transform: uppercase;
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .header-processo {
+            font-size: 12px;
+            text-align: right;
+            margin-top: 10px;
+            font-weight: normal;
+        }
+
+        .processo-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .processo-detalhes > p {
+            text-align: justify;
+            font-size: 12px;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .docs-detail > h5 {
+            text-decoration: underline;
+            text-align: center;
+            margin-bottom: 0px;
+        }
+
+        .docs-detail > p {
+            font-size: 12px;
+        }
+
+        ol > li {
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+
+        .signature {
+            width: 45%;
+            font-size: 10px;
+            float: left;
+            text-align: center;
+        }
+
+        .signature-aluno {
+            width: 60%;
+            margin-left: 20%;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 5em;
+        }
+
+        .signature > hr, .signature-aluno > hr {
+            border: 0.5px solid black;
+            margin-top: 5px;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Conteúdo da primeira página -->
+    <div class="page-content">
+        <img class="logo" src="{{header.logo}}" alt="Logo">
+        <div class="header text-center">
+            <img class="insignia" src="{{header.insignia}}" alt="Logo">
+            <div class="header-details">
+                <h3 style="margin-top: 10px;">República de Angola</h3>
+                <h3>Ministério da Educação</h3>
+                <h4>Instituto Politécnico Privado Castro</h4>
+                <h4>"A Luz do Saber"</h4>
+            </div>
+        </div>
+
+        <h4 class="boletim-text">DECLARAÇÃO DE FREQUÊNCIA Nº _________ / IPPC /<b>{{header.nome_ano}}</b></h4>
+        <p style="text-align: justify; margin-top: 2em;">
+            Para os devidos efeitos, declara-se que, <b style="color: red;">{{estudante.nome}}</b>, filho (a) de <b>{{estudante.nome_pai}}</b> e de <b>{{estudante.nome_mae}}</b>, nascido (a) aos <b>{{estudante.data_nascimento}}</b>, natural de <b>{{estudante.nome_pai}}</b> e de <b>{{estudante.naturalidade}}</b>, município de <b>{{estudante.nome_pai}}</b> e de <b>{{estudante.municipio}}</b>, Província de <b>{{estudante.nome_pai}}</b> e de <b>{{estudante.provincia}}</b>, portador do B.I. no <b>{{estudante.nome_pai}}</b> e de <b>{{estudante.identificacao}}</b>, passado pelo arquivo de Identificação do <b>{{estudante.local_emissao_identificacao}}</b>, aos <b>{{estudante.data_emissao_bi}}.</b>.
+        </p>
+
+        <p style="text-align: justify;">
+            Frequenta a <b>{{estudante.classe}}</b> neste Instituto no presente ano Lectivo, Curso de <b>{{header.nome_curso}}</b>, área de saúde em regime diurno, na turma <b>{{estudante.turma}}</b>.
+        </p>
+
+        <p style="text-align: justify;">
+            Por ser verdade e me ter sido solicitada, mandei passar a presente Declaração que vai por mim assinada e autenticada com o carimbo a óleo em uso nesta instituição de ensino.
+        </p>
+       
+        <div class="clearfix">
+            <div class="signature-aluno">
+                <b>O Chefe de Secretaria</b>
+                <p style="margin-top: 2px;">______________________________</p>
+                <h3>Rubem Mandavela Chingui</h3>
+            </div>
+
+            <div class="signature-aluno">
+                <b>O Subdirector Pedagógico</b>
+                <p style="margin-top: 2px;">______________________________</p>
+                <h3>/ Aurélio João Sales Duarte Bandeira /</h3>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,82 @@
+const { EmolumentoNatureza } = require("../models/Model");
+
+const create = (req, res) => {
+    
+    const form = req.body;
+
+    EmolumentoNatureza.create(form)
+        .then(data => {
+            res.status(201).json({message:"Natureza Emolumento criada com sucesso", data:data});
+        })
+        .catch(err => {
+            res.status(500).json(err);
+        });
+};
+
+const read = (req, res) => {
+    const { id } = req.params;
+
+    EmolumentoNatureza.findOne({ where: { id } })
+        .then(data => {
+            res.status(200).json(data);
+        })
+        .catch(err => {
+            res.status(500).json(err);
+        });
+};
+
+const update = (req, res) => {
+    const { id } = req.params;
+    const form = req.body;
+
+    EmolumentoNatureza.update(form, { where: { id } })
+        .then(() => {
+            res.status(201).json({message:"Natureza Emolumento atualizada com sucesso"});
+        })
+        .catch(err => {
+            res.status(500).json(err);
+        });
+};
+
+const remove = (req, res) => {
+    const { id } = req.params;
+
+    EmolumentoNatureza.destroy({ where: { id } })
+        .then(() => {
+            res.status(201).json({message:"Natureza Emolumento excluída com sucesso"});
+        })
+        .catch(err => {
+            res.status(500).json(err);
+        });
+};
+
+const listAll = (req, res) => {
+    EmolumentoNatureza.findAll()
+        .then(data => {
+            res.status(200).json(data);
+        })
+        .catch(err => {
+            res.status(500).json(err);
+        });
+};
+
+const listByStatus = (req, res) => {
+    const { status } = req.params;
+
+    EmolumentoNatureza.findAll({ where: { status } })
+        .then(data => {
+            res.status(200).json(data);
+        })
+        .catch(err => {
+            res.status(500).json(err);
+        });
+};
+
+module.exports = {
+    create,
+    read,
+    update,
+    remove,
+    listAll,
+    listByStatus
+};

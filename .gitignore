@@ -1,3 +1,4 @@
+/node_modules
 /client/node_modules
 /server/node_modules
 QUALQUER node_modules do projeto

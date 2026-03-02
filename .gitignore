@@ -1,4 +1,6 @@
 /node_modules
-/client/node_modules
+/client/admin/node_modules
+/client/estudantes/node_modules
+/client/web/node_modules
+/client/web
 /server/node_modules
-QUALQUER node_modules do projeto

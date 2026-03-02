@@ -11,16 +11,14 @@ app.use(bodyParser.urlencoded({extended:true}))
 
 app.use(cors())
 
-app.use("/api",require("./routes/api"));
+app.use("/api",require("./routes/config"));
+app.use("/api",require("./routes/auth"));
+app.use("/api",require("./routes/app"));
 app.use("/api/mediafiles", express.static(path.join(__dirname, "mediafiles")))
 app.use("/static", express.static(path.join(__dirname, "static")))
 
 app.use("/css", express.static(path.join(__dirname, "dist/css/")))
 app.use("/", express.static(path.join(__dirname, "dist")))
-
-app.get("/", (req, res) => {
-    res.json("Servidor Rodando Perfeitamente");
-})
 
 http.listen(PORT, () => {
     conn.sync()

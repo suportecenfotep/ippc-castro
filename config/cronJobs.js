@@ -1,5 +1,5 @@
 const cron = require('node-cron');
-const { License } = require("../models/Model");
+const { License } = require("../models/Auth");
 const moment = require('moment');
 
 // Função para verificar e truncar licenças expiradas

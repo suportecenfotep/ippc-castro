@@ -3,19 +3,23 @@ const {
           AnoLectivo, 
           Curso, 
           Sala,
-          Matricula,
           Classe, 
           Periodo,
+          Emolumento,
+          EmolumentoPreco
+      } = require("../models/Config");
+      
+const { 
+          Matricula,
           Pagamento,
           ItensPagamento,
-          Emolumento,
-          EmolumentoPreco,
           Despesa,
-          Estudante,
+          Estudante
+      } = require("../models/App");
+      
+const { 
           User,
-          DisciplinaClasse,
-          Disciplina
-      } = require("../models/Model");
+      } = require("../models/Auth");
 var pdf = require("pdf-creator-node")
 const path = require("path")
 const moment = require("moment")
@@ -30,19 +34,6 @@ var options = {
     format: "A4",
     orientation: "portrait",
     border: "10mm",
-    /*header: {
-        height: "45mm",
-        contents: '<div style="text-align: center;">Author: Shyam Hajare</div>'
-    },
-    footer: {
-        height: "28mm",
-        contents: {
-            first: 'Cover page',
-            2: 'Second page', // Any page number is working. 1-based index
-            default: '<span style="color: #444;">{{page}}</span>/<span>{{pages}}</span>', // fallback value
-            last: 'Last Page'
-        }
-    }*/
 };
 
 async function createComprovativoMatricula(req, res) {
